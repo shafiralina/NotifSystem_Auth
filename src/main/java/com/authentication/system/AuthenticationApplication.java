@@ -29,6 +29,7 @@ public class AuthenticationApplication {
         	return new JwtConfig();
 	}
 	
+	
 	@Bean
 	public JwtConfig jwtConfig() {
         	return new JwtConfig();    	
