@@ -1,6 +1,7 @@
 package com.authentication.system.auth;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Date;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -26,7 +27,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.authentication.system.common.JwtConfig;
+import com.authentication.system.message.BaseResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -42,6 +45,8 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 	private int time;
 	private String userId;
 
+	private Gson gson = new Gson();
+	
 	public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authManager, JwtConfig jwtConfig) {
 		this.authManager = authManager;
 		this.jwtConfig1 = jwtConfig;
@@ -70,11 +75,15 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 
 			// 3. Authentication manager authenticate the user, and use
 			// UserDetialsServiceImpl::loadUserByUsername() method to load the user.
+//			System.out.println("AUTH TOKEN = "+authManager.authenticate(authToken).getName());
 			return authManager.authenticate(authToken);
 
 		} catch (IOException e) {
+//			System.out.println("AUTH TOKEN = null");
 			throw new RuntimeException(e);
 		}
+		
+		
 	}
 
 	// Upon successful authentication, generate a token.
@@ -102,6 +111,15 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 		// Add token to header
 		dataCredential(userId, token);
 		response.addHeader(jwtConfig1.getHeader(), jwtConfig1.getPrefix() + " " + token);
+		
+		BaseResponse body = new BaseResponse("Sukses", token);
+		String responses = this.gson.toJson(body);
+		
+		PrintWriter out = response.getWriter();
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		out.print(responses);
+		out.flush();
 	}
 
 	@Async("transactionPoolExecutor")

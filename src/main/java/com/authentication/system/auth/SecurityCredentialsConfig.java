@@ -50,7 +50,7 @@ public class SecurityCredentialsConfig extends WebSecurityConfigurerAdapter {
 		.authorizeRequests()
 		    // allow all POST requests 
 		    .antMatchers(HttpMethod.POST, jwtConfig1.getUri()).permitAll()
-		    // any other requests must be authenticated
+		    .antMatchers(HttpMethod.POST, "/api/notifsystem/save/device").permitAll()		    // any other requests must be authenticated
 		    .anyRequest().authenticated();
 	}
 	
