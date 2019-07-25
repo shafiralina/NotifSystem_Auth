@@ -4,10 +4,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,8 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.authentication.system.common.JwtConfig;
-
-
 
 @EnableWebSecurity 	// Enable security config. This annotation denotes config for spring security.
 @Order(1000)
@@ -48,10 +43,10 @@ public class SecurityCredentialsConfig extends WebSecurityConfigurerAdapter {
 		    // The filter needs this auth manager to authenticate the user.
 		    .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig1))	
 		.authorizeRequests()
-		    // allow all POST requests 
+		    // allow all POST (auth and save) requests 
 		    .antMatchers(HttpMethod.POST, jwtConfig1.getUri()).permitAll()
-		    .antMatchers(HttpMethod.POST, "/api/notifsystem/save/device").permitAll()		    // any other requests must be authenticated
-		    .anyRequest().authenticated();
+		    .antMatchers(HttpMethod.POST, "/api/notifsystem/save/device").permitAll()		    
+		    .anyRequest().authenticated(); // any other requests must be authenticated
 	}
 	
 	// Spring has UserDetailsService interface, which can be overriden to provide our implementation for fetching user from database (or any other source).
@@ -61,11 +56,7 @@ public class SecurityCredentialsConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 	}
-	
-//	@Bean
-//	public JwtConfig jwtConfig() {
-//        	return new JwtConfig();
-//	}
+
 	
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {

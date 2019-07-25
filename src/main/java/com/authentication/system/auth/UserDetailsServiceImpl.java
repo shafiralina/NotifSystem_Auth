@@ -1,13 +1,10 @@
 package com.authentication.system.auth;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -25,15 +22,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service // It has to be annotated with @Service.
 public class UserDetailsServiceImpl implements UserDetailsService {
-	private String userId;
-	private int id;
 
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
+		
+		// call API CredentialUser to send credential user to NotifSystem
 		String result = "";
 		HttpClient client = new HttpClient();
 		GetMethod getMethod = new GetMethod("http://localhost:8100/credential/user");
@@ -42,7 +38,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		try {
 			client.executeMethod(getMethod);
 			result = getMethod.getResponseBodyAsString();
-//			System.out.println(result);
 		} catch (Exception e) {
 		} finally {
 			getMethod.releaseConnection();
@@ -53,31 +48,25 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			result1 = new ObjectMapper().readValue(result, HashMap.class);
 			credential.setData(result1.get("data"));
 
-//            System.out.println(credential.getData());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
+		// Add userCredential to appUser
 		ArrayList<LinkedHashMap<String, Object>> data = credential.getData();
-		final List<AppUser> user1 = new ArrayList<UserDetailsServiceImpl.AppUser>();
-
+		final List<AppUser> userCredential = new ArrayList<UserDetailsServiceImpl.AppUser>();
+		
 		for (int i = 0; i < data.size(); i++) {
 			AppUser user = new AppUser();
 			user.setId(data.get(i).get("id"));
 			user.setUsername(data.get(i).get("userId"));
 			user.setPassword(encoder.encode(data.get(i).get("password").toString()));
 			user.setRole(data.get(i).get("role"));
-			user1.add(user);
+			userCredential.add(user);
 		}
-		System.out.println(user1);
+		System.out.println(userCredential);
 
-		// hard coding the users. All passwords must be encoded.
-//		final List<AppUser> users = Arrays.asList(
-//				new AppUser(1, "omar", encoder.encode("12345"), "USER"),
-//				new AppUser(2, "admin", encoder.encode("12345"), "ADMIN")
-//			);
-
-		for (AppUser appUser : user1) {
+		for (AppUser appUser : userCredential) {
 			if (appUser.getUsername().equals(username)) {
 
 				// Remember that Spring needs roles to be in this format: "ROLE_" + userRole
@@ -106,17 +95,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 		public AppUser() {
 
-		}
-
-		public AppUser(Integer id, String username, String password, String role) {
-			this.id = id;
-			this.username = username;
-			this.password = password;
-			this.role = role;
-		}
-
-		public Integer getId() {
-			return id;
 		}
 
 		public void setId(Object object) {

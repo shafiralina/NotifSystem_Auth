@@ -11,10 +11,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.authentication.system.common.JwtConfig;
 
-
-
-
-
 @SpringBootApplication
 @EnableEurekaClient
 @EnableAsync
@@ -23,16 +19,15 @@ public class AuthenticationApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AuthenticationApplication.class, args);
 	}
-	
+
 	@Bean
 	public JwtConfig jwtConfig1() {
-        	return new JwtConfig();
+		return new JwtConfig();
 	}
-	
-	
+
 	@Bean
 	public JwtConfig jwtConfig() {
-        	return new JwtConfig();    	
+		return new JwtConfig();
 	}
 
 	@Bean(name = "transactionPoolExecutor")
@@ -45,7 +40,5 @@ public class AuthenticationApplication {
 		executor.initialize();
 		return executor;
 	}
-	
-	
 
 }

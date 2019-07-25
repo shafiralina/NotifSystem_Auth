@@ -75,15 +75,11 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 
 			// 3. Authentication manager authenticate the user, and use
 			// UserDetialsServiceImpl::loadUserByUsername() method to load the user.
-//			System.out.println("AUTH TOKEN = "+authManager.authenticate(authToken).getName());
 			return authManager.authenticate(authToken);
 
 		} catch (IOException e) {
-//			System.out.println("AUTH TOKEN = null");
 			throw new RuntimeException(e);
-		}
-		
-		
+		}	
 	}
 
 	// Upon successful authentication, generate a token.
@@ -92,14 +88,18 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
+		
+		// Set token's expiration time  depends on its channel
 		String channel = request.getHeader("Channel");
-		System.out.println("ini adalah channel = " + channel);
+		System.out.println("Channel = " + channel);
 
 		if (channel.equals("MobileBanking")) {
 			time = jwtConfig1.getExpiration1();
 		} else {
 			time = jwtConfig1.getExpiration2();
 		}
+		
+		
 		Long now = System.currentTimeMillis();
 		String token = Jwts.builder().setSubject(auth.getName())
 				// Convert to list of strings.
@@ -109,12 +109,12 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 				.setIssuedAt(new Date(now)).setExpiration(new Date(now + time * 1000)) // in milliseconds
 				.signWith(SignatureAlgorithm.HS512, jwtConfig1.getSecret().getBytes()).compact();
 		// Add token to header
-		dataCredential(userId, token);
 		response.addHeader(jwtConfig1.getHeader(), jwtConfig1.getPrefix() + " " + token);
+		dataCredential(userId, token);
 		
+		// Add response body
 		BaseResponse body = new BaseResponse("Sukses", token);
 		String responses = this.gson.toJson(body);
-		
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
