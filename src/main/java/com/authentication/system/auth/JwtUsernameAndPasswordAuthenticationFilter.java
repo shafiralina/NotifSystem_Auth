@@ -115,13 +115,13 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 		
 		
 		// Add response body
-//		BaseResponse body = new BaseResponse("Sukses", token);
-//		String responses = this.gson.toJson(body);
-//		PrintWriter out = response.getWriter();
-//		response.setContentType("application/json");
-//		response.setCharacterEncoding("UTF-8");
-//		out.print(responses);
-//		out.flush();
+		BaseResponse body = new BaseResponse("Sukses", token);
+		String responses = this.gson.toJson(body);
+		PrintWriter out = response.getWriter();
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		out.print(responses);
+		out.flush();
 	}
 
 	@Async("transactionPoolExecutor")
