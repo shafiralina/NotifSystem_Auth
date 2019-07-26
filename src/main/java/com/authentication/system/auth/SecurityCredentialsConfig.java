@@ -44,8 +44,7 @@ public class SecurityCredentialsConfig extends WebSecurityConfigurerAdapter {
 		    .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig1))	
 		.authorizeRequests()
 		    // allow all POST (auth and save) requests 
-		    .antMatchers(HttpMethod.POST, jwtConfig1.getUri()).permitAll()
-		    .antMatchers(HttpMethod.POST, "/api/notifsystem/save/device").permitAll()		    
+		    .antMatchers(HttpMethod.POST, jwtConfig1.getUri()).permitAll()		    
 		    .anyRequest().authenticated(); // any other requests must be authenticated
 	}
 	

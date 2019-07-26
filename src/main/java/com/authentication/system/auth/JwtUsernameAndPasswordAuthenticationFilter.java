@@ -108,18 +108,20 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 						auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
 				.setIssuedAt(new Date(now)).setExpiration(new Date(now + time * 1000)) // in milliseconds
 				.signWith(SignatureAlgorithm.HS512, jwtConfig1.getSecret().getBytes()).compact();
+		
+		dataCredential(userId, token);
 		// Add token to header
 		response.addHeader(jwtConfig1.getHeader(), jwtConfig1.getPrefix() + " " + token);
-		dataCredential(userId, token);
+		
 		
 		// Add response body
-		BaseResponse body = new BaseResponse("Sukses", token);
-		String responses = this.gson.toJson(body);
-		PrintWriter out = response.getWriter();
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		out.print(responses);
-		out.flush();
+//		BaseResponse body = new BaseResponse("Sukses", token);
+//		String responses = this.gson.toJson(body);
+//		PrintWriter out = response.getWriter();
+//		response.setContentType("application/json");
+//		response.setCharacterEncoding("UTF-8");
+//		out.print(responses);
+//		out.flush();
 	}
 
 	@Async("transactionPoolExecutor")
@@ -129,7 +131,6 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 		GetMethod getMethod = new GetMethod("http://localhost:8100/" + userId + "/" + token);
 		try {
 			client.executeMethod(getMethod);
-			result = getMethod.getResponseBodyAsString();
 			System.out.println("USER ID = " + userId);
 			System.out.println("TOKEN = " + token);
 		} catch (Exception e) {
