@@ -40,7 +40,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 	private AuthenticationManager authManager;
 
 	@Autowired
-	private final JwtConfig jwtConfig1;
+	private final JwtConfig jwtConfig;
 
 	private int time;
 	private String userId;
@@ -49,12 +49,12 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 	
 	public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authManager, JwtConfig jwtConfig) {
 		this.authManager = authManager;
-		this.jwtConfig1 = jwtConfig;
+		this.jwtConfig = jwtConfig;
 
 		// By default, UsernamePasswordAuthenticationFilter listens to "/login" path.
 		// In our case, we use "/auth". So, we need to override the defaults.
 
-		this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtConfig1.getUri(), "POST"));
+		this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtConfig.getUri(), "POST"));
 	}
 
 	@Override
@@ -94,9 +94,9 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 		System.out.println("Channel = " + channel);
 
 		if (channel.equals("MobileBanking")) {
-			time = jwtConfig1.getExpiration1();
+			time = jwtConfig.getExpiration1();
 		} else {
-			time = jwtConfig1.getExpiration2();
+			time = jwtConfig.getExpiration2();
 		}
 		
 		
@@ -107,11 +107,11 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 				.claim("authorities",
 						auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
 				.setIssuedAt(new Date(now)).setExpiration(new Date(now + time * 1000)) // in milliseconds
-				.signWith(SignatureAlgorithm.HS512, jwtConfig1.getSecret().getBytes()).compact();
+				.signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes()).compact();
 		
 		dataCredential(userId, token);
 		// Add token to header
-		response.addHeader(jwtConfig1.getHeader(), jwtConfig1.getPrefix() + " " + token);
+		response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + " " + token);
 		
 		
 		// Add response body

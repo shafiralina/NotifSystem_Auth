@@ -24,7 +24,7 @@ public class SecurityCredentialsConfig extends WebSecurityConfigurerAdapter {
 	private UserDetailsService userDetailsService;
 
 	@Autowired
-	private JwtConfig jwtConfig1;
+	private JwtConfig jwtConfig;
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -41,10 +41,10 @@ public class SecurityCredentialsConfig extends WebSecurityConfigurerAdapter {
 		    // What's the authenticationManager()? 
 		    // An object provided by WebSecurityConfigurerAdapter, used to authenticate the user passing user's credentials
 		    // The filter needs this auth manager to authenticate the user.
-		    .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig1))	
+		    .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig))	
 		.authorizeRequests()
 		    // allow all POST (auth and save) requests 
-		    .antMatchers(HttpMethod.POST, jwtConfig1.getUri()).permitAll()		    
+		    .antMatchers(HttpMethod.POST, jwtConfig.getUri()).permitAll()		    
 		    .anyRequest().authenticated(); // any other requests must be authenticated
 	}
 	

@@ -6,7 +6,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.authentication.system.common.JwtConfig;
@@ -14,6 +17,9 @@ import com.authentication.system.common.JwtConfig;
 @SpringBootApplication
 @EnableEurekaClient
 @EnableAsync
+@EnableScheduling
+@Configuration
+@ComponentScan(basePackages = "com.authentication.system")
 public class AuthenticationApplication {
 
 	public static void main(String[] args) {
@@ -21,7 +27,7 @@ public class AuthenticationApplication {
 	}
 
 	@Bean
-	public JwtConfig jwtConfig1() {
+	public JwtConfig jwtConfig() {
 		return new JwtConfig();
 	}
 

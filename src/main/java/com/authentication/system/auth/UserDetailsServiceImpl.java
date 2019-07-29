@@ -1,13 +1,9 @@
 package com.authentication.system.auth;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+
 import java.util.List;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -15,58 +11,18 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service // It has to be annotated with @Service.
 public class UserDetailsServiceImpl implements UserDetailsService {
-
+	
 	@Autowired
-	private BCryptPasswordEncoder encoder;
+	private CredentialUserDatabase data;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		// call API CredentialUser to send credential user to NotifSystem
-		String result = "";
-		HttpClient client = new HttpClient();
-		GetMethod getMethod = new GetMethod("http://localhost:8100/credential/user");
-		CredentialUserResponse credential = new CredentialUserResponse();
-
-		try {
-			client.executeMethod(getMethod);
-			result = getMethod.getResponseBodyAsString();
-		} catch (Exception e) {
-		} finally {
-			getMethod.releaseConnection();
-		}
-
-		HashMap<String, Object> result1 = new HashMap<>();
-		try {
-			result1 = new ObjectMapper().readValue(result, HashMap.class);
-			credential.setData(result1.get("data"));
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		// Add userCredential to appUser
-		ArrayList<LinkedHashMap<String, Object>> data = credential.getData();
-		final List<AppUser> userCredential = new ArrayList<UserDetailsServiceImpl.AppUser>();
-		
-		for (int i = 0; i < data.size(); i++) {
-			AppUser user = new AppUser();
-			user.setId(data.get(i).get("id"));
-			user.setUsername(data.get(i).get("userId"));
-			user.setPassword(encoder.encode(data.get(i).get("password").toString()));
-			user.setRole(data.get(i).get("role"));
-			userCredential.add(user);
-		}
-		System.out.println(userCredential);
-
-		for (AppUser appUser : userCredential) {
+		for (AppUser appUser : data.getData()) {
 			if (appUser.getUsername().equals(username)) {
 
 				// Remember that Spring needs roles to be in this format: "ROLE_" + userRole
@@ -83,46 +39,55 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			}
 		}
 
-		// If user not found. Throw this exception.
+		// If user not found. Throw this exception.		
 		throw new UsernameNotFoundException("Username: " + username + " not found");
 	}
 
 	// A (temporary) class represent the user saved in the database.
-	private static class AppUser {
+	public static class AppUser {
 		private Integer id;
 		private String username, password;
 		private String role;
 
-		public AppUser() {
-
+		
+		public AppUser(Integer id, String username, String password, String role) {
+	    	this.id = id;
+	    	this.username = username;
+	    	this.password = password;
+	    	this.role = role;
+	    }
+		
+		public Integer getId() {
+			return id;
 		}
 
-		public void setId(Object object) {
-			this.id = (Integer) object;
+		public void setId(Integer id) {
+			this.id = id;
 		}
 
 		public String getUsername() {
 			return username;
 		}
 
-		public void setUsername(Object object) {
-			this.username = (String) object;
+		public void setUsername(String username) {
+			this.username = username;
 		}
 
 		public String getPassword() {
 			return password;
 		}
 
-		public void setPassword(Object object) {
-			this.password = (String) object;
+		public void setPassword(String password) {
+			this.password = password;
 		}
 
 		public String getRole() {
 			return role;
 		}
 
-		public void setRole(Object object) {
-			this.role = (String) object;
+		public void setRole(String role) {
+			this.role = role;
 		}
+
 	}
 }
