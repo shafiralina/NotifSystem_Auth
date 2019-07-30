@@ -28,6 +28,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.authentication.system.common.JwtConfig;
 import com.authentication.system.message.BaseResponse;
+import com.authentication.system.message.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
@@ -64,10 +65,13 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 		try {
 
 			// 1. Get credentials from request
-			UserCredentials creds = new ObjectMapper().readValue(request.getInputStream(), UserCredentials.class);
+			UserCredentialsNew credsNew = new ObjectMapper().readValue(request.getInputStream(), UserCredentialsNew.class);
 
 			// 2. Create auth object (contains credentials) which will be used by auth
 			// manager
+			UserCredentials creds = new UserCredentials();
+			creds.setPassword("12345");
+			creds.setUsername(credsNew.getUsername());
 			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(creds.getUsername(),
 					creds.getPassword(), Collections.emptyList());
 
@@ -93,7 +97,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 		String channel = request.getHeader("Channel");
 		System.out.println("Channel = " + channel);
 
-		if (channel.equals("MobileBanking")) {
+		if (channel.equals("MB")) {
 			time = jwtConfig.getExpiration1();
 		} else {
 			time = jwtConfig.getExpiration2();
@@ -108,14 +112,14 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 						auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
 				.setIssuedAt(new Date(now)).setExpiration(new Date(now + time * 1000)) // in milliseconds
 				.signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes()).compact();
-		
+		System.out.println("time = "+time);
 		dataCredential(userId, token);
 		// Add token to header
 		response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + " " + token);
 		
 		
 		// Add response body
-		BaseResponse body = new BaseResponse("Sukses", token);
+		BaseResponse body = new BaseResponse(ResponseCode.VALID_RESPONSE, "Success", token);
 		String responses = this.gson.toJson(body);
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
@@ -159,5 +163,18 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 		public void setPassword(String password) {
 			this.password = password;
 		}
+	}
+	
+	private static class UserCredentialsNew {
+		private String username;
+
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
 	}
 }
