@@ -39,13 +39,13 @@ public class CredentialUserDatabase {
 	public void credentialData() {
 	String result = "";
 	HttpClient client = new HttpClient();
-	GetMethod getMethod = new GetMethod("http://localhost:8100/credential/user");
+	GetMethod getMethod = new GetMethod("http://localhost:3000/user");
 	CredentialUserResponse credential = new CredentialUserResponse();
 
 	try {
 		client.executeMethod(getMethod);
 		result = getMethod.getResponseBodyAsString();
-	} catch (Exception e) {
+	} catch (Exception e) {	
 	} finally {
 		getMethod.releaseConnection();
 	}
@@ -65,7 +65,7 @@ public class CredentialUserDatabase {
 	AppUser a[] = new AppUser[data.size()];
 	for (int i = 0; i < data.size(); i++) {
 		int parseIntx = Integer.parseInt(data.get(i).get("id").toString());
-		String stringx = data.get(i).get("userId").toString();
+		String stringx = data.get(i).get("user_id").toString();
 		String encodex = encoder.encode(data.get(i).get("password").toString());
 		String string2x = data.get(i).get("role").toString();
 		AppUser user = new AppUser(parseIntx,stringx,encodex,string2x);

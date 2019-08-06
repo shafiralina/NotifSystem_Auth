@@ -132,7 +132,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 	public void dataCredential(String userId, String token) {
 		String result = "";
 		HttpClient client = new HttpClient();
-		GetMethod getMethod = new GetMethod("http://localhost:8100/" + userId + "/" + token);
+		GetMethod getMethod = new GetMethod("http://localhost:3000/user/" + userId + "/" + token);
 		try {
 			client.executeMethod(getMethod);
 			System.out.println("USER ID = " + userId);
